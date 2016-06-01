@@ -143,11 +143,14 @@ State Machine Function Definitions
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
-{ 
-  static LedRateType aeBlinkRate[] = {LED_1HZ, LED_2HZ, LED_4HZ, LED_8HZ};
+{ static LedRateType aeBlinkRate[] = {LED_1HZ, LED_2HZ, LED_4HZ, LED_8HZ};
   static u8 u8BlinkRateIndex = 0;
   static bool bLedBlink = FALSE;
   static bool bYellowBlink=FALSE;
+
+
+
+  
   if( IsButtonPressed(BUTTON0) )
 {
   /* The button is currently pressed, so make sure the LED is on */
@@ -182,7 +185,7 @@ if( WasButtonPressed(BUTTON1) )
   {
     /* Be sure to acknowledge the button press */
     ButtonAcknowledge(BUTTON1);
-    u8BlinkRateIndex++;
+    
 
     /* If the LED is already blinking, toggle it off */
     if(bLedBlink)
@@ -198,15 +201,24 @@ if( WasButtonPressed(BUTTON1) )
     }
     if(u8BlinkRateIndex==4)u8BlinkRateIndex=0;
   }
-  if( IsButtonHeld(BUTTON3, 2000) )
+ if( WasButtonPressed(BUTTON2) )
   {
-    LedOn(CYAN);
+    /* Be sure to acknowledge the button press */
+    ButtonAcknowledge(BUTTON2);
+
+    /* Update the blink rate and handle overflow only if the LED is currently blinking */
+    if(bLedBlink)
+    {
+      u8BlinkRateIndex++;
+      if(u8BlinkRateIndex == 4)
+      {
+        u8BlinkRateIndex = 0;
+      }
+      
+      /* Request the rate udpate */
+      LedBlink(YELLOW, aeBlinkRate[u8BlinkRateIndex]);
+    }
   }
-  else
-  {
-    LedOff(CYAN);
-  }
-    
 } /* end UserAppSM_Idle() */
      
 
