@@ -91,7 +91,7 @@ Promises:
   - 
 */
 void UserAppInitialize(void)
-{
+{PWMAudioSetFrequency(BUZZER1, 500);
   u8 au8SongTitle[] = "Heart and Soul";
   
 #ifdef MPGL1
@@ -174,7 +174,14 @@ OFF  WHITE
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
-{
+{if(IsButtonPressed(BUTTON0))
+  {
+    PWMAudioOn(BUZZER1);
+  }
+  else
+  {
+    PWMAudioOff(BUZZER1);
+  } 
   /* Sound - related variable definitions */
   static u16 au16NotesRight[]    = {F5, F5, F5, F5, F5, E5, D5, E5, F5, G5, A5, A5, A5, A5, A5, G5, F5, G5, A5, A5S, C6, F5, F5, D6, C6, A5S, A5, G5, F5, NO, NO};
   static u16 au16DurationRight[] = {QN, QN, HN, EN, EN, EN, EN, EN, EN, QN, QN, QN, HN, EN, EN, EN, EN, EN, EN, QN,  HN, HN, EN, EN, EN, EN, QN,  QN, HN, HN, FN};
