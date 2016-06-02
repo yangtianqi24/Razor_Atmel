@@ -138,10 +138,12 @@ State Machine Function Definitions
 static void UserAppSM_Idle(void)
 {
   
-  static u16 u16frequency[]={523,586,658,523,523,586,658,523,658,697,783,658,697,783,783,879,783,697,658,523,783,879,783,697,658,523,523,783,523,523,783,523};
+  static u16 u16frequency[]={523,586,658,523,523,586,658,523,658,697,783,658,697,783,783,879,783,697,658,523,783,879,783,697,658,523,523,783,783,523,523,783,783,523};
   static u16 u8counter=0;
   static u16 u7counter=0;
-  u7counter++;
+  if(IsButtonPressed(BUTTON0))
+  {
+    u7counter++;
   if(u7counter==200)
   {
     u8counter++;
@@ -149,10 +151,16 @@ static void UserAppSM_Idle(void)
      PWMAudioSetFrequency(BUZZER1, u16frequency[u8counter]);
      PWMAudioOn(BUZZER1);
    }
-    if(u8counter==(sizeof(u16frequency)-1))
+    if(u8counter==(sizeof(u16frequency)+1))
     {
        u8counter=0;
     }
+  }
+  else
+  {
+    PWMAudioOff(BUZZER1);
+  } 
+  
     
         
      
