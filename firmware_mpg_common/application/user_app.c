@@ -88,7 +88,7 @@ Promises:
 */
 void UserAppInitialize(void)
 {
-  
+  PWMAudioSetFrequency(BUZZER1, 500);
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -137,7 +137,25 @@ State Machine Function Definitions
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
 {
+  
+  static u16 u16frequency[]={523,586,658,523,523,586,658,523,658,697,783,658,697,783,783,879,783,697,658,523,783,879,783,697,658,523,523,783,523,523,783,523};
+  static u16 u8counter=0;
+  static u16 u7counter=0;
+  u7counter++;
+  if(u7counter==200)
+  {
+    u8counter++;
+    u7counter=0;
+     PWMAudioSetFrequency(BUZZER1, u16frequency[u8counter]);
+     PWMAudioOn(BUZZER1);
+   }
+    if(u8counter==(sizeof(u16frequency)-1))
+    {
+       u8counter=0;
+    }
     
+        
+     
 } /* end UserAppSM_Idle() */
      
 
