@@ -51,7 +51,8 @@ extern volatile u32 G_u32ApplicationFlags;             /* From main.c */
 
 extern volatile u32 G_u32SystemTime1ms;                /* From board-specific source file */
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
-
+extern u8 G_au8DebugScanfBuffer[];                     /* From debug.c */
+extern u8 G_u8DebugScanfCharCount;                     /* From debug.c  */
 
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
@@ -59,8 +60,18 @@ Variable names shall start with "UserApp_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp_StateMachine;            /* The state machine function pointer */
 static u32 UserApp_u32Timeout;                      /* Timeout counter used across states */
-
-
+static u8 u8NumCharsMessage[] = "\n\rCharacters in buffer: ";
+static u8 u8NumCharsMessag1[] = "yangtianqi";
+static u8 u8NumCharsMessag2[1000];
+static u8 u8NumCharsMessag3[1000];
+u8 u8CharCount;
+ u8 u8counter=0;
+ u8 u8counter1=0;
+ u8 u8counter2=0;
+ u8 u8counter3=0;
+  u8 u8counter4=0;
+   u8 u8counter5=0;
+   u8 u8counter6=0;
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
@@ -88,7 +99,16 @@ Promises:
 */
 void UserAppInitialize(void)
 {
-  
+    LedOn(LCD_RED);
+    LedOff(LCD_GREEN);
+    LedOff(LCD_BLUE);
+    u8 au8Message[] = "Yangtianqi!";
+    LCDClearChars(LINE1_START_ADDR + 11, 7);
+    LCDMessage(LINE1_START_ADDR, au8Message);
+    
+ 
+
+ 
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -137,8 +157,92 @@ State Machine Function Definitions
 /* Wait for a message to be queued */
 static void UserAppSM_Idle(void)
 {
+     /* Print message with number of characters in scanf buffer */
+ 
+  u8counter++;
+   
+   
+ if(u8counter==50)
+ {
+     u8counter6++;
+    u8counter=0;
+    if(u8counter6==100)
+      {
+        PWMAudioOff(BUZZER1);
+        LedOff(RED);
+        u8counter6=0;
+        
+      }
+    if((G_au8DebugScanfBuffer[0])==u8NumCharsMessag1[u8counter4]||(G_au8DebugScanfBuffer[0]-32)==u8NumCharsMessag1[u8counter4]||(G_au8DebugScanfBuffer[0]+32)==u8NumCharsMessag1[u8counter4])
+  {
+    u8NumCharsMessag2[u8counter4 ]=G_au8DebugScanfBuffer[0];
+    u8counter4++;
+    if(u8counter4==10)
+    { 
+      LedBlink(RED, LED_2HZ);
+      PWMAudioSetFrequency(BUZZER1, 262);
+      PWMAudioOn(BUZZER1);
+      
+      u8counter4=0;
+     
+    }
     
-} /* end UserAppSM_Idle() */
+  }
+  if(WasButtonPressed(BUTTON3))
+  {
+    DebugLineFeed();
+    ButtonAcknowledge(BUTTON3);
+    LCDMessage(LINE2_START_ADDR, u8NumCharsMessag2);
+    
+  }
+    
+   
+   
+    LCDMessage(LINE2_START_ADDR+u8counter2,G_au8DebugScanfBuffer);
+   
+    u8CharCount = DebugScanf(G_au8DebugScanfBuffer);
+     u8counter2=u8CharCount+u8counter2;
+    
+    if(u8counter2>=20)
+    {
+      u8counter2++;
+    }
+    if(u8counter2==40)
+    {
+      LCDClearChars(LINE2_START_ADDR + 0,40) ;
+      u8counter2=0;
+     }
+    if(WasButtonPressed(BUTTON0))
+  {
+    ButtonAcknowledge(BUTTON0);
+    LCDClearChars(LINE2_START_ADDR + 0,40) ;
+    u8counter2=0;
+  }
+  if(WasButtonPressed(BUTTON1))
+  {
+    DebugLineFeed();
+    ButtonAcknowledge(BUTTON1);
+    u8counter3=u8counter2;
+    DebugPrintNumber(u8counter3);
+  }
+  if(WasButtonPressed(BUTTON2))
+  {
+    DebugLineFeed();
+    ButtonAcknowledge(BUTTON2);
+    u8counter3=0;
+    DebugPrintNumber(u8counter3);
+  }
+ 
+  
+ }
+}
+
+
+  
+    
+
+  
+ /* end UserAppSM_Idle() */
      
 
 /*-------------------------------------------------------------------------------------------------------------------*/
