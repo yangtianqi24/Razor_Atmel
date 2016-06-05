@@ -61,18 +61,15 @@ Variable names shall start with "UserApp_" and be declared as static.
 static fnCode_type UserApp_StateMachine;            /* The state machine function pointer */
 static u32 UserApp_u32Timeout;                      /* Timeout counter used across states */
 static u8 u8NumCharsMessage[] = "\n\rCharacters in buffer: ";
-static u8 u8NumCharsMessag1[] = "yangtianqi";
-static u8 u8NumCharsMessag2[1000];
-static u8 u8NumCharsMessag3[1000];
-u8 u8CharCount;
- u8 u8counter=0;
- u8 u8counter1=0;
- u8 u8counter2=0;
- u8 u8counter3=0;
-  u8 u8counter4=0;
-   u8 u8counter5=0;
-   u8 u8counter6=0;
-   u8 u8counter7=0;
+static u8 u8NumCharsMessag1[] = "yangtianqi";/*Store name*/
+static u8 u8NumCharsMessag2[1000];/*Define a new array to store The input*/
+u8 u8CharCount;/*The length of the array*/
+u8 u8counter=0;
+u8 u8counter2=0;
+u8 u8counter3=0;
+u8 u8counter4=0;
+u8 u8counter6=0;
+u8 u8counter7=0;
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
@@ -100,7 +97,7 @@ Promises:
 */
 void UserAppInitialize(void)
 {
-    LedOn(LCD_RED);
+    LedOn(LCD_RED);/*These statements are display function*/
     LedOff(LCD_GREEN);
     LedOff(LCD_BLUE);
     u8 au8Message[] = "Yangtianqi!";
@@ -161,19 +158,19 @@ static void UserAppSM_Idle(void)
      /* Print message with number of characters in scanf buffer */
  
   u8counter++;
-   
-   
- if(u8counter==50)
+  if(u8counter==50)/*Every 50 ms*/
  {
-     u8counter6++;
+    u8counter6++;
     u8counter=0;
-    if(u8counter6==100)
+    if(u8counter6==100)/*50*100=5s*/
       {
         PWMAudioOff(BUZZER1);
         LedOff(RED);
         u8counter6=0;
-        
-      }
+        }  
+     
+   
+ /*Determine whether equal*/
     if((G_au8DebugScanfBuffer[0])==u8NumCharsMessag1[u8counter4]||(G_au8DebugScanfBuffer[0]-32)==u8NumCharsMessag1[u8counter4]||(G_au8DebugScanfBuffer[0]+32)==u8NumCharsMessag1[u8counter4])
   {
     u8NumCharsMessag2[u8counter4 ]=G_au8DebugScanfBuffer[0];
@@ -188,8 +185,8 @@ static void UserAppSM_Idle(void)
       u8counter4=0;
      
     }
-    
-  }
+   }  
+ /*If press button3 from the second row shows have input*/
   if(WasButtonPressed(BUTTON3))
   {
     DebugLineFeed();
@@ -197,27 +194,24 @@ static void UserAppSM_Idle(void)
     LCDMessage(LINE2_START_ADDR, u8NumCharsMessag2);
     
   }
-    
-   
-   
     LCDMessage(LINE2_START_ADDR+u8counter2,G_au8DebugScanfBuffer);
-   
-    u8CharCount = DebugScanf(G_au8DebugScanfBuffer);
+   u8CharCount = DebugScanf(G_au8DebugScanfBuffer);
      u8counter2=u8CharCount+u8counter2;
      u8counter7=u8CharCount+ u8counter7;
-    
-    
-    if(u8counter2==20)
+     /*If meet the line 20 is reset*/
+   if(u8counter2==20)
     {
       LCDClearChars(LINE2_START_ADDR + 0,40) ;
       u8counter2=0;
      }
+   /*If the press for the reset*/
     if(WasButtonPressed(BUTTON0))
   {
     ButtonAcknowledge(BUTTON0);
     LCDClearChars(LINE2_START_ADDR + 0,40) ;
     u8counter2=0;
   }
+  /*If the press for the output has been input characters*/
   if(WasButtonPressed(BUTTON1))
   {
     DebugLineFeed();
@@ -232,10 +226,16 @@ static void UserAppSM_Idle(void)
     u8counter7=0;
     DebugPrintNumber(u8counter7);
   }
- 
-  
  }
 }
+     
+
+    
+    
+    
+    
+    
+ 
 
 
   
