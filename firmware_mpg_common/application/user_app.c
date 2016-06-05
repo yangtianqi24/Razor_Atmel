@@ -72,6 +72,7 @@ u8 u8CharCount;
   u8 u8counter4=0;
    u8 u8counter5=0;
    u8 u8counter6=0;
+   u8 u8counter7=0;
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
@@ -176,6 +177,7 @@ static void UserAppSM_Idle(void)
     if((G_au8DebugScanfBuffer[0])==u8NumCharsMessag1[u8counter4]||(G_au8DebugScanfBuffer[0]-32)==u8NumCharsMessag1[u8counter4]||(G_au8DebugScanfBuffer[0]+32)==u8NumCharsMessag1[u8counter4])
   {
     u8NumCharsMessag2[u8counter4 ]=G_au8DebugScanfBuffer[0];
+    
     u8counter4++;
     if(u8counter4==10)
     { 
@@ -202,12 +204,10 @@ static void UserAppSM_Idle(void)
    
     u8CharCount = DebugScanf(G_au8DebugScanfBuffer);
      u8counter2=u8CharCount+u8counter2;
+     u8counter7=u8CharCount+ u8counter7;
     
-    if(u8counter2>=20)
-    {
-      u8counter2++;
-    }
-    if(u8counter2==40)
+    
+    if(u8counter2==20)
     {
       LCDClearChars(LINE2_START_ADDR + 0,40) ;
       u8counter2=0;
@@ -222,15 +222,15 @@ static void UserAppSM_Idle(void)
   {
     DebugLineFeed();
     ButtonAcknowledge(BUTTON1);
-    u8counter3=u8counter2;
-    DebugPrintNumber(u8counter3);
+    
+    DebugPrintNumber(u8counter7);
   }
   if(WasButtonPressed(BUTTON2))
   {
     DebugLineFeed();
     ButtonAcknowledge(BUTTON2);
-    u8counter3=0;
-    DebugPrintNumber(u8counter3);
+    u8counter7=0;
+    DebugPrintNumber(u8counter7);
   }
  
   
