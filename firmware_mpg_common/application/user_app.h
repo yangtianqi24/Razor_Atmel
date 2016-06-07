@@ -30,8 +30,8 @@ Constants / Definitions
 **********************************************************************************************************************/
 /* Required constants for ANT channel configuration */
 #define ANT_CHANNEL_USERAPP             (u8)0                 
-#define ANT_SERIAL_LO_USERAPP           (u8)0xAB                 
-#define ANT_SERIAL_HI_USERAPP           (u8)0x1E              
+#define ANT_SERIAL_LO_USERAPP           (u8)0x37              
+#define ANT_SERIAL_HI_USERAPP           (u8)0x26           
 #define ANT_DEVICE_TYPE_USERAPP         (u8)0                 
 #define ANT_TRANSMISSION_TYPE_USERAPP   (u8)0                 
 #define ANT_CHANNEL_PERIOD_LO_USERAPP   (u8)0x00              
