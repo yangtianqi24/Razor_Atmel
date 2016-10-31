@@ -59,7 +59,7 @@ void main(void)
 
   SspInitialize();
   TWIInitialize();
-
+  adc12Initialize();
   LcdInitialize();
   LedInitialize();
   ButtonInitialize();
@@ -89,7 +89,7 @@ void main(void)
     LcdRunActiveState();
     AntRunActiveState();
     SdCardRunActiveState();
-
+    adc12RunActiveState();
     /* Applications */
     UserAppRunActiveState();
     

@@ -19,6 +19,6 @@
 @REM 
 
 
-"C:\Program Files\IAR Systems\EWARM_7_20_1\common\bin\cspybat" "C:\Program Files\IAR Systems\EWARM_7_20_1\arm\bin\armproc.dll" "C:\Program Files\IAR Systems\EWARM_7_20_1\arm\bin\armjlink.dll"  %1 --plugin "C:\Program Files\IAR Systems\EWARM_7_20_1\arm\bin\armbat.dll" --device_macro "C:\Program Files\IAR Systems\EWARM_7_20_1\arm\config\debugger\Atmel\SAM3U.dmac" --flash_loader "C:\Program Files\IAR Systems\EWARM_7_20_1\arm\config\flashloader\Atmel\sam3u2c\sam3u2c-flash.board" --backend -B "--endian=little" "--cpu=Cortex-M3" "--fpu=None" "-p" "C:\Program Files\IAR Systems\EWARM_7_20_1\arm\CONFIG\debugger\Atmel\ATSAM3U2C.ddf" "--semihosting" "--device=ATSAM3U2C" "--drv_communication=USB0" "--jlink_speed=auto" "--jlink_initial_speed=32" "--jlink_reset_strategy=0,0" "--drv_catch_exceptions=0x000" "--drv_swo_clock_setup=72000000,0,2000000" 
+"F:\iar\common\bin\cspybat" "F:\iar\arm\bin\armproc.dll" "F:\iar\arm\bin\armjlink.dll"  %1 --plugin "F:\iar\arm\bin\armbat.dll" --device_macro "F:\iar\arm\config\debugger\Atmel\SAM3U.dmac" --flash_loader "F:\iar\arm\config\flashloader\Atmel\sam3u2c\sam3u2c-flash.board" --backend -B "--endian=little" "--cpu=Cortex-M3" "--fpu=None" "-p" "F:\iar\arm\CONFIG\debugger\Atmel\ATSAM3U2C.ddf" "--semihosting" "--device=ATSAM3U2C" "--drv_communication=USB0" "--jlink_speed=auto" "--jlink_initial_speed=32" "--jlink_reset_strategy=0,0" "--drv_catch_exceptions=0x000" "--drv_swo_clock_setup=72000000,0,2000000" 
 
 
