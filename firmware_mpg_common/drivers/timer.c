@@ -1,22 +1,8 @@
 /**********************************************************************************************************************
-File: user_app.c                                                                
-
-----------------------------------------------------------------------------------------------------------------------
-To start a new task using this user_app as a template:
- 1. Copy both user_app.c and user_app.h to the Application directory
- 2. Rename the files yournewtaskname.c and yournewtaskname.h
- 3. Add yournewtaskname.c and yournewtaskname.h to the Application Include and Source groups in the IAR project
- 4. Use ctrl-h (make sure "Match Case" is checked) to find and replace all instances of "user_app" with "yournewtaskname"
- 5. Use ctrl-h to find and replace all instances of "UserApp" with "YourNewTaskName"
- 6. Use ctrl-h to find and replace all instances of "USER_APP" with "YOUR_NEW_TASK_NAME"
- 7. Add a call to YourNewTaskNameInitialize() in the init section of main
- 8. Add a call to YourNewTaskNameRunActiveState() in the Super Loop section of main
- 9. Update yournewtaskname.h per the instructions at the top of yournewtaskname.h
-10. Delete this text (between the dashed lines) and update the Description below to describe your task
-----------------------------------------------------------------------------------------------------------------------
+File: timer.c                                                                
 
 Description:
-This is a user_app.c file template 
+Allow easy access to setting up and running a timer with 
 
 ------------------------------------------------------------------------------------------------------------------------
 API:
@@ -25,11 +11,6 @@ Public functions:
 
 
 Protected System functions:
-void UserAppInitialize(void)
-Runs required initialzation for the task.  Should only be called once in main init section.
-
-void UserAppRunActiveState(void)
-Runs current task state.  Should only be called once in main loop.
 
 
 **********************************************************************************************************************/
@@ -41,7 +22,7 @@ Global variable definitions with scope across entire project.
 All Global variable names shall start with "G_"
 ***********************************************************************************************************************/
 /* New variables */
-volatile u32 G_u32UserAppFlags;                       /* Global state flags */
+volatile u32 G_u32TimerFlags;                       /* Global state flags */
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -55,11 +36,14 @@ extern volatile u32 G_u32SystemTime1s;                 /* From board-specific so
 
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
-Variable names shall start with "UserApp_" and be declared as static.
+Variable names shall start with "Timer_" and be declared as static.
 ***********************************************************************************************************************/
-static fnCode_type UserApp_StateMachine;            /* The state machine function pointer */
-static u32 UserApp_u32Timeout;                      /* Timeout counter used across states */
+static fnCode_type Timer_StateMachine;            /* The state machine function pointer */
+static fnCode_type fpTimerCallback;                  /* The ISR callback function pointer */
 
+static u32 Timer_u32Timeout;                      /* Timeout counter used across states */
+
+static u32 Timer_u32TimerCounter = 0;             /* Track instances of The TC0 interrupt handler */
 
 /**********************************************************************************************************************
 Function Definitions
@@ -69,13 +53,87 @@ Function Definitions
 /* Public functions                                                                                                   */
 /*--------------------------------------------------------------------------------------------------------------------*/
 
+/*----------------------------------------------------------------------------------------------------------------------
+Function: TimerSetTime
+
+Description
+Sets the timer tick period (interrupt rate).
+
+Requires:
+  - u32TimerCountx x in ticks or us????
+
+Promises:
+  - Update config (running or stopped?)
+*/
+
+void TimerSetTime(struct _AT91S_TC *TC,u16 u16time)
+{
+  struct _AT91S_TC *AT91_TC = TC;
+  AT91_TC -> TC_RC = (u32)u16time;
+}
+/*----------------------------------------------------------------------------------------------------------------------
+Function: TimerStart
+
+Description
+Starts the designated Timer.
+
+Requires:
+  - eTimer_ is the timer to start
+
+Promises:
+  - Specified channel on Timer 0 is set to run; if already running it remains running
+  - Does NOT reset the timer value
+*/
+
+void TimerStart(u8 u8Timer)//
+{
+  struct _AT91S_TC *AT91_TC = AT91C_BASE_TC1 + u8Timer;
+  AT91_TC -> TC_CCR = 0x00000005;
+}
+
+/*----------------------------------------------------------------------------------------------------------------------
+Function: TimerStop
+
+Description
+Stops the designated Timer.
+
+Requires:
+  - eTimer_ is the timer to stop
+
+Promises:
+  - Specified timer is stopped; if already stopped it remains stopped
+  - Does NOT reset the timer value
+*/
+
+void TimerStop(struct _AT91S_TC *TC)//
+{
+  struct _AT91S_TC *AT91_TC = TC;
+  AT91_TC -> TC_CCR = TC1_CCR_INIT;
+}
+
+/*----------------------------------------------------------------------------------------------------------------------
+Function: TimerAssignCallback
+
+Description
+Allows user to specify a custom callback function for when the Timer interrupt occurs.
+
+Requires:
+  - 
+
+Promises:
+  - 
+*/
+void TimerAssignCallback()
+{
+  LedToggle(RED);
+}
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Protected functions                                                                                                */
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------------------------------------------------------
-Function: UserAppInitialize
+Function: TimerInitialize
 
 Description:
 Initializes the State Machine and its variables.
@@ -86,35 +144,49 @@ Requires:
 Promises:
   - 
 */
-
-void led(void)
+void TimerInitialize(void)
 {
-  LedToggle(ORANGE);
-}
-
-void UserAppInitialize(void)
-{
-  TimerSetTime(65535);
-  TimerStart(TIMER_CHANNEL1);
   
-  TimerAssignCallback(led);
+  /* Load the block configuration register */
+  AT91C_BASE_TCB1 -> TCB_BMR = TCB_BMR_INIT;
+  AT91C_BASE_TCB2 -> TCB_BMR = TCB_BMR_INIT;
+  AT91C_BASE_TCB0 -> TCB_BMR = TCB_BMR_INIT;
+  
+  /* Channel 0 settings not configured at this time */
+  
+  /*将计时器1的相关初始设置，加载到内部寄存器中初始化该计数器*/
+  
+  /* Load Channel 1 settings */
+  AT91C_BASE_TC1 -> TC_CCR = TC1_CCR_INIT;
+  AT91C_BASE_TC1 -> TC_CMR = TC1_CMR_INIT;
+  AT91C_BASE_TC1 -> TC_IER = TC1_IER_INIT;
+  AT91C_BASE_TC1 -> TC_IDR = TC1_IDR_INIT;
+  AT91C_BASE_TC1 -> TC_RC = TC1_RC_INIT;
 
+  /* Set the default callback and activate the timer clock */
+  fpTimerCallback = TimerDefaultCallback;
+  AT91C_BASE_TC1 -> TC_CCR = TC1_CCR_INIT;
+  
+  /* Channel 2 settings not configured at this time */
+  TimerStart(TIMER_CHANNEL1);
   /* If good initialization, set state to Idle */
   if( 1 )
   {
-    UserApp_StateMachine = UserAppSM_Idle;
+    /* Enable required interrupts */
+
+    Timer_StateMachine = TimerSM_Idle;
   }
   else
   {
     /* The task isn't properly initialized, so shut it down and don't run */
-    UserApp_StateMachine = UserAppSM_FailedInit;
+    Timer_StateMachine = TimerSM_FailedInit;
   }
 
-} /* end UserAppInitialize() */
+} /* end TimerInitialize() */
 
-
+  
 /*----------------------------------------------------------------------------------------------------------------------
-Function UserAppRunActiveState()
+Function TimerRunActiveState()
 
 Description:
 Selects and runs one iteration of the current state in the state machine.
@@ -127,16 +199,62 @@ Requires:
 Promises:
   - Calls the function to pointed by the state machine function pointer
 */
-void UserAppRunActiveState(void)
+void TimerRunActiveState(void)
 {
-  UserApp_StateMachine();
+  Timer_StateMachine();
 
-} /* end UserAppRunActiveState */
+} /* end TimerRunActiveState */
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
+  
+/*----------------------------------------------------------------------------------------------------------------------
+Function TimerDefaultCallback()
+
+Description:
+An empty function that the Timer Callback points to.  Expected that the 
+user will set their own.
+
+Requires:
+  - 
+
+Promises:
+  - 
+*/
+inline void TimerDefaultCallback(void)
+{
+} /* End TimerDefaultCallback() */
+
+
+/*----------------------------------------------------------------------------------------------------------------------
+ISR: TC1_IrqHandler
+
+Description:
+Parses the TC1 interrupts and handles them appropriately.  Note that all TC1
+interrupts are ORed and will trigger this handler, therefore any expected interrupt 
+that is enabled must be parsed out and handled.
+
+Requires:
+  - 
+
+Promises:
+  - If Channel1 RC: Timer Channel 1 is reset
+*/
+void TC1_IrqHandler(void)
+{
+  /* Check for RC compare interrupt - reading TC_SR clears the bit if set */
+  if(AT91C_BASE_TC1->TC_SR & AT91C_TC_CPCS)
+  {
+    Timer_u32TimerCounter++;
+    fpTimerCallback();
+  }
+
+  /* Clear the TC1 pending flag and exit */
+  NVIC->ICPR[0] = (1 << IRQn_TC1);
+  
+} /* end TC1_IrqHandler() */
 
 
 /**********************************************************************************************************************
@@ -145,26 +263,29 @@ State Machine Function Definitions
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for a message to be queued */
-static void UserAppSM_Idle(void)
+static void TimerSM_Idle(void)
 {
-    
-} /* end UserAppSM_Idle() */
+  if(AT91C_BASE_TC1 -> TC_CV == 65535)
+  {
+    fpTimerCallback = TimerAssignCallback;
+  }
+} /* end TimerSM_Idle() */
      
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
-static void UserAppSM_Error(void)          
+static void TimerSM_Error(void)          
 {
   
-} /* end UserAppSM_Error() */
+} /* end TimerSM_Error() */
 
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* State to sit in if init failed */
-static void UserAppSM_FailedInit(void)          
+static void TimerSM_FailedInit(void)          
 {
     
-} /* end UserAppSM_FailedInit() */
+} /* end TimerSM_FailedInit() */
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/

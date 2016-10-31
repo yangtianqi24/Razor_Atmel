@@ -65,7 +65,7 @@ void main(void)
   ButtonInitialize();
   AntInitialize();
   SdCardInitialize();
-
+TimerInitialize();
   /* Application initialization */
     UserAppInitialize();
   
@@ -89,7 +89,7 @@ void main(void)
     LcdRunActiveState();
     AntRunActiveState();
     SdCardRunActiveState();
-
+TimerRunActiveState();
     /* Applications */
     UserAppRunActiveState();
     
